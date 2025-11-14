@@ -101,6 +101,7 @@ COURSE_IMAGES = {
     "Data Science & AI": "images/data_science.jpg",
     "C Embedded Systems": "images/c_embedded.jpg",
     "C++ & Unreal Engine": "images/unreal_engine.jpg",}
+    
 def enroll_view(request):
     course_id = request.GET.get("course_id")
     course_name = request.GET.get("course_name", "").strip()
