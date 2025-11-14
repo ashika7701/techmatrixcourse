@@ -15,22 +15,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 # SECURITY
 # -------------------------------
-SECRET_KEY = config('SECRET_KEY', default='replace_this_with_env_secret')
+SECRET_KEY = config('SECRET_KEY', default='change-me')
 DEBUG = config('DEBUG', default=False, cast=bool)
+
 ALLOWED_HOSTS = [
+    ".railway.app",
     "techmatrixcourse-production.up.railway.app",
     "localhost",
-    "127.0.0.1"
+    "127.0.0.1",
 ]
+
+# CSRF FIXES
+CSRF_TRUSTED_ORIGINS = [
+    "https://techmatrixcourse-production.up.railway.app",
+    "https://*.railway.app",
+]
+
+# Cookies
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SAMESITE = "None"
 
-
-
 # -------------------------------
-# APPLICATION DEFINITION
+# APPS
 # -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -42,11 +50,11 @@ INSTALLED_APPS = [
     'onlinecourseapp',
 ]
 
-# Razorpay API keys (use Railway environment variables)
+# Razorpay API
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
 
-# Email configuration (use environment variables for security)
+# Email
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
@@ -60,18 +68,17 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 # -------------------------------
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',  # Serve static files
+    'whitenoise.middleware.WhiteNoiseMiddleware',
+
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
+
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
-# -------------------------------
-# URLS
-# -------------------------------
 ROOT_URLCONF = 'onlinecourse.urls'
 
 # -------------------------------
@@ -87,35 +94,27 @@ TEMPLATES = [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
-                'django.template.context_processors.csrf',
-                'django.template.context_processors.media',
-                'django.template.context_processors.static',
-                'django.template.context_processors.tz',
                 'django.contrib.messages.context_processors.messages',
             ],
         },
     },
 ]
 
-# -------------------------------
-# WSGI
-# -------------------------------
 WSGI_APPLICATION = 'onlinecourse.wsgi.application'
 
 # -------------------------------
-# AUTHENTICATION
+# AUTH
 # -------------------------------
 AUTH_USER_MODEL = 'onlinecourseapp.CustomUser'
-AUTHENTICATION_BACKENDS = [
-    'django.contrib.auth.backends.ModelBackend',
-]
+AUTHENTICATION_BACKENDS = ['django.contrib.auth.backends.ModelBackend']
 
 # -------------------------------
-# DATABASE (PostgreSQL on Railway)
+# DATABASE (Railway PostgreSQL)
 # -------------------------------
 DATABASES = {
     'default': dj_database_url.config(
-        default=config('DATABASE_URL')
+        default=config("DATABASE_URL"),
+        conn_max_age=600,
     )
 }
 
@@ -128,9 +127,6 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
 ]
-CSRF_TRUSTED_ORIGINS = [
-    "https://techmatrixcourse-production.up.railway.app"
-]
 
 # -------------------------------
 # INTERNATIONALIZATION
@@ -141,17 +137,24 @@ USE_I18N = True
 USE_TZ = True
 
 # -------------------------------
-# STATIC AND MEDIA FILES
+# STATIC FILES (Railway + Whitenoise)
 # -------------------------------
 STATIC_URL = '/static/'
+
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_DIRS = [BASE_DIR / 'static']
+STATICFILES_DIRS = [
+    BASE_DIR / 'static'
+]
+
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
+# -------------------------------
+# MEDIA
+# -------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
 
 # -------------------------------
-# DEFAULT PRIMARY KEY
+# DEFAULT PRIMARY KEY FIELD
 # -------------------------------
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
