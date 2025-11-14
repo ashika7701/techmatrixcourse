@@ -17,7 +17,16 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # -------------------------------
 SECRET_KEY = config('SECRET_KEY', default='replace_this_with_env_secret')
 DEBUG = config('DEBUG', default=False, cast=bool)
-ALLOWED_HOSTS = ["*", "onlinecourse-production.up.railway.app"]
+ALLOWED_HOSTS = [
+    "techmatrixcourse-production.up.railway.app",
+    "localhost",
+    "127.0.0.1"
+]
+CSRF_COOKIE_SECURE = True
+SESSION_COOKIE_SECURE = True
+CSRF_COOKIE_SAMESITE = "None"
+SESSION_COOKIE_SAMESITE = "None"
+
 
 
 # -------------------------------
@@ -118,6 +127,9 @@ AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator'},
     {'NAME': 'django.contrib.auth.password_validation.CommonPasswordValidator'},
     {'NAME': 'django.contrib.auth.password_validation.NumericPasswordValidator'},
+]
+CSRF_TRUSTED_ORIGINS = [
+    "https://techmatrixcourse-production.up.railway.app"
 ]
 
 # -------------------------------
