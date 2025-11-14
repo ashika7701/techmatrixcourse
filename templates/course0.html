@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Select Course Type</title>
+
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f4f6f9;
+      margin: 0;
+      padding: 0;
+    }
+
+    /* Header Navigation */
+    header {
+      background-color: #015fc4;
+      color: white;
+      padding: 5px 30px; /* Reduced header height */
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    /* EXACT NAV SIZE YOU PROVIDED */
+    .nav-container {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      padding: 14px 0;   /* Super reduced height */
+    }
+
+    .logo {
+      font-size: 18px;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    nav ul {
+      list-style: none;
+      display: flex;
+      padding: 0;
+      margin: 0;
+    }
+
+    nav ul li {
+      margin: 0 8px;    /* Denser spacing */
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;   /* Smaller text */
+      padding: 4px 6px;  /* Minimized padding */
+      transition: 0.3s;
+    }
+
+    nav ul li a:hover {
+      color: #ffeb3b;
+    }
+
+    /* Main Content */
+    .main-content {
+      text-align: center;
+      padding: 60px 20px;
+    }
+
+    h1 {
+      font-size: 36px;
+      margin-bottom: 50px;
+      color: #333;
+    }
+
+    .course-options {
+      display: flex;
+      justify-content: center;
+      gap: 40px;
+      flex-wrap: wrap;
+    }
+
+    .course-card {
+      background-color: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
+      width: 300px;
+      transition: transform 0.3s ease;
+      text-align: center;
+    }
+
+    .course-card:hover {
+      transform: translateY(-8px);
+    }
+
+    .course-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-top-left-radius: 15px;
+      border-top-right-radius: 12px;
+    }
+
+    .course-card h2 {
+      font-size: 24px;
+      margin: 15px 0 10px;
+      color: #015fc4;
+    }
+
+    .course-card a button {
+      margin-bottom: 20px;
+      font-size: 16px;
+      padding: 10px 30px;
+      background-color: #015fc4;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    .course-card a button:hover {
+      background-color: #004fa3;
+    }
+
+    @media (max-width: 768px) {
+      .course-options {
+        flex-direction: column;
+        align-items: center;
+      }
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="nav-container">
+      <div class="logo">Tech Matrix</div>
+      <nav>
+        <ul>
+          <li><a href="{% url 'home' %}">Home</a></li>
+          <li><a href="#contact-area">Contact</a></li>
+          <li><a href="#review-area">Review</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <div class="main-content">
+    <h1>Select Course Mode</h1>
+
+    <div class="course-options">
+
+      <!-- Online Course -->
+      <div class="course-card">
+        {% load static %}
+        <img src="{% static 'images/live.jpeg' %}" alt="Offline Course">
+        <h2>Recorded</h2>
+        <a href="{% url 'course' %}?type=online"><button>Enroll Course</button></a>
+      </div>
+
+      <!-- Live Course -->
+      <div class="course-card">
+        {% load static %}
+        <img src="{% static 'images/recorded.jpeg' %}" alt="Live Course">
+        <h2>Live</h2>
+        <a href="course"><button>Enroll Course</button></a>
+      </div>
+
+    </div>
+  </div>
+
+</body>
+</html>

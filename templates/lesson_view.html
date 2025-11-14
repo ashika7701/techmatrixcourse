@@ -1,0 +1,733 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Course Player</title>
+  <script src="https://www.youtube.com/iframe_api"></script>
+  <style>
+    /* Original styles remain unchanged */
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+      height: 100vh;
+    }
+    .sidebar {
+      width: 300px;
+      background: #f8f9fa;
+      border-right: 1px solid #ddd;
+      padding: 20px;
+      overflow-y: auto;
+    }
+    .progress-bar {
+      height: 10px;
+      background: #e0e0e0;
+      border-radius: 5px;
+      margin-bottom: 10px;
+    }
+    .progress {
+      height: 100%;
+      background: #27ae60;
+      width: 0%;
+      border-radius: 5px;
+      transition: width 0.3s ease;
+    }
+    .header {
+      font-size: 18px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      text-align: center;
+    }
+    .percentage-label {
+      font-size: 14px;
+      color: #444;
+      text-align: center;
+      margin-bottom: 15px;
+    }
+    .lesson {
+      display: flex;
+      align-items: flex-start;
+      padding: 10px;
+      border-radius: 6px;
+      cursor: pointer;
+      gap: 10px;
+      transition: background 0.2s ease;
+    }
+    .lesson:hover {
+      background-color: #f1f1f1;
+    }
+    .lesson.active {
+      background-color: #ffe0e0;
+    }
+    .status-circle {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background-color: #ccc;
+      margin-top: 6px;
+      flex-shrink: 0;
+    }
+    .lesson.completed .status-circle {
+      background-color: #27ae60;
+    }
+    .lesson-text {
+      font-size: 14px;
+    }
+    .lesson-title {
+      font-weight: bold;
+      color: #222;
+    }
+    .lesson-subtitle {
+      color: #666;
+      font-size: 13px;
+    }
+    .main-content {
+      flex: 1;
+      padding: 30px;
+      background: #fff;
+    }
+    .video-title {
+      font-size: 22px;
+      font-weight: bold;
+      margin-bottom: 10px;
+      color: #333;
+    }
+    .video-frame {
+      width: 100%;
+      max-width: 800px;
+      height: 450px;
+      border: none;
+      margin-bottom: 20px;
+    }
+    .buttons {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 10px 16px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 14px;
+    }
+    .btn-previous {
+      background-color: #ccc;
+    }
+    .btn-continue {
+      background-color: #e74c3c;
+      color: white;
+    }
+    .download-section {
+      margin-top: 20px;
+    }
+    .download-section a {
+      background: #27ae60;
+      color: white;
+      padding: 10px 15px;
+      border-radius: 5px;
+      text-decoration: none;
+    }
+    h3 {
+      margin-top: 30px;
+      text-align: center;
+    }
+
+    /* New styles for added features */
+    .theme-toggle {
+      position: fixed;
+      top: 10px;
+      right: 10px;
+      background: #333;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      z-index: 1000;
+    }
+
+    .quiz-container {
+      margin-top: 20px;
+      padding: 15px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .quiz-question {
+      margin-bottom: 15px;
+    }
+
+    .quiz-options {
+      margin-left: 20px;
+    }
+
+    .quiz-option {
+      margin-bottom: 8px;
+    }
+
+    .quiz-feedback {
+      margin-top: 10px;
+      padding: 10px;
+      border-radius: 5px;
+      display: none;
+    }
+
+    .quiz-correct {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .quiz-wrong {
+      background: #f8d7da;
+      color: #721c24;
+    }
+
+    .notes-container {
+      margin-top: 20px;
+      display: none;
+    }
+
+    .notes-textarea {
+      width: 100%;
+      height: 100px;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 5px;
+      resize: vertical;
+    }
+
+    .certificate-section {
+      margin-top: 30px;
+      text-align: center;
+      display: none;
+    }
+
+    .certificate-btn {
+      background: #3498db;
+      color: white;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 5px;
+      font-size: 16px;
+      cursor: pointer;
+    }
+
+    /* Dark mode styles */
+    body.dark-mode {
+      background: #1a1a1a;
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .sidebar {
+      background: #2d2d2d;
+      border-right-color: #444;
+    }
+
+    body.dark-mode .main-content {
+      background: #1a1a1a;
+    }
+
+    body.dark-mode .video-title {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .lesson:hover {
+      background-color: #383838;
+    }
+
+    body.dark-mode .lesson.active {
+      background-color: #4a2a2a;
+    }
+
+    body.dark-mode .lesson-title {
+      color: #f0f0f0;
+    }
+
+    body.dark-mode .lesson-subtitle {
+      color: #aaa;
+    }
+
+    body.dark-mode .quiz-container,
+    body.dark-mode .notes-textarea {
+      background: #2d2d2d;
+      border-color: #444;
+      color: #f0f0f0;
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleDarkMode()">🌙 Dark Mode</button>
+  
+  <div class="sidebar">
+    <div class="header">unrealengine</div>
+    <div class="progress-bar"><div class="progress" id="progressBar"></div></div>
+    <div class="percentage-label" id="overallPercent">0%</div>
+    <h3>Django Classes</h3>
+    <div class="section" id="lessonContainer"></div>
+  </div>
+
+  <div class="main-content">
+    <div class="video-title" id="videoTitle">📺 Class 1: Introduction of Django</div>
+     <iframe id="videoPlayer" class="video-frame" 
+  allow="autoplay; encrypted-media" 
+  allowfullscreen frameborder="0" 
+  referrerpolicy="strict-origin-when-cross-origin"></iframe>
+    <div class="buttons">
+      <button class="btn btn-previous" onclick="previousLesson()">← Previous</button>
+      <button class="btn btn-continue" id="continueBtn" onclick="nextLesson()">✅ Complete & Continue</button>
+ <div id="certificateSection" class="hidden mt-4">
+  <button id="certificateBtn" onclick="redirectToAssessment()"
+          class="mt-6 bg-green-600 text-white px-6 py-2 rounded-lg shadow-md hover:bg-green-700">
+    🎓 Go to Final Assessment
+  </button>
+</div>
+    </div>
+    <div class="download-section">
+      <a href="#" download id="downloadBtn">📥 Download Resource</a>
+    </div>
+    
+    <!-- New sections for added features -->
+    <div class="quiz-container" id="quizContainer">
+      <h3>Lesson Quiz</h3>
+      <div id="quizContent"></div>
+      <div id="quizFeedback" class="quiz-feedback"></div>
+      <button class="btn" onclick="checkQuiz()" style="margin-top: 10px;">Submit Quiz</button>
+    </div>
+
+    <div class="notes-container" id="notesContainer">
+      <h3>Your Notes</h3>
+      <textarea class="notes-textarea" id="lessonNotes" placeholder="Write your notes here..."></textarea>
+    </div> 
+     <!-- Certificate Section (always visible) -->
+
+    </button>
+  </div>
+  
+   
+<script>
+function redirectToAssessment() {
+    // Correct Django URL (with trailing slash)
+    window.location.href = '/emcfinal_assessment/';
+}
+</script>
+
+  <script>
+    // Original lessonsData with added quizzes
+    const lessonsData = [
+      { 
+        title: "Class 1: Introduction of Django", 
+        video: "0ghia6Knczc",
+        quiz: [
+          {
+            question: "What is Django primarily used for?",
+            options: ["Mobile app development", "Web development", "Game development"],
+            answer: 1
+          },
+          {
+            question: "Django is based on which programming language?",
+            options: ["Java", "Python", "JavaScript"],
+            answer: 1
+          }
+        ]
+      },
+      { 
+        title: "Class 2: Virtual Environment", 
+        video: "wMZ7OTmAjRY",
+        quiz: [
+          {
+            question: "What is the purpose of a virtual environment?",
+            options: ["To create virtual machines", "To isolate Python environments", "To develop VR applications"],
+            answer: 1
+          }
+        ]
+      },
+      // Add quizzes for remaining lessons...
+      { title: "Class 3: Install VS Code", video: "HZylUyx7ois", quiz: [] },
+      { title: "Class 4: Install Django & Create Project", video: "-ea94uMFVfU", quiz: [] },
+      { title: "Class 5: First Django Application", video: "0CToUAmIcQU", quiz: [] },
+      { title: "Class 6: Rendering HTML Files", video: "isB4YqPwAsI", quiz: [] },
+      { title: "Class 7: Input From HTML Form", video: "DJY0jiJHxNw", quiz: [] },
+      { title: "Class 8: GET & POST Methods", video: "xEJUzaqKSHM", quiz: [] },
+      { title: "Class 9: Static Files in Django", video: "GecdaHbYMn4", quiz: [] },
+      { title: "Class 10: Bootstrap in Django", video: "MrY6xVXJq28", quiz: [] },
+      { title: "Class 11: What is MVT?", video: "cB8dpftr0zY", quiz: [] },
+      { title: "Class 12: Admin Panel & Create Data", video: "ee2_13soizk", quiz: [] },
+      { title: "Class 13: Read Data in Django", video: "9TPtHBQcReE", quiz: [] },
+      { title: "Class 14: Update & Delete Data", video: "iip4jCqRaxo", quiz: [] },
+      { title: "Class 15: CRUD Operations", video: "gW4scXrYu3Q", quiz: [] },
+      { title: "Class 16: Alert Message in Django", video: "HoESWJoBNLE", quiz: [] },
+      { title: "Class 17: Registration & Login", video: "Kft1wW9BYk4", quiz: [] },
+      { title: "Class 18: Registration & Login Part 1", video: "Zph-VD9SFIE", quiz: [] },
+      { title: "Class 19: Registration & Login Part 2", video: "ftSnULH6N50", quiz: [] },
+      { title: "Class 20: Registration & Login Part 3", video: "gPLKuTuNFYg", quiz: [] }
+      
+    ];
+    
+    
+    
+
+    // Original variables
+    const container = document.getElementById("lessonContainer");
+    const videoPlayer = document.getElementById("videoPlayer");
+    const videoTitle = document.getElementById("videoTitle");
+    const downloadBtn = document.getElementById("downloadBtn");
+    const progressBar = document.getElementById("progressBar");
+    const overallPercent = document.getElementById("overallPercent");
+
+    // New variables for added features
+    const quizContainer = document.getElementById("quizContainer");
+    const quizContent = document.getElementById("quizContent");
+    const quizFeedback = document.getElementById("quizFeedback");
+    const notesContainer = document.getElementById("notesContainer");
+    const lessonNotes = document.getElementById("lessonNotes");
+    const certificateSection = document.getElementById("certificateSection");
+    const continueBtn = document.getElementById("continueBtn");
+
+    let currentLessonIndex = 0;
+    let completedLessons = JSON.parse(localStorage.getItem('completedLessons')) || [];
+    let notesData = JSON.parse(localStorage.getItem('lessonNotes')) || {};
+    let quizResults = JSON.parse(localStorage.getItem('quizResults')) || {};
+    let darkMode = localStorage.getItem('darkMode') === 'true';
+
+    // Initialize the page
+    function init() {
+      renderLessons();
+      updateProgressBar();
+      selectLesson(currentLessonIndex);
+      applyDarkMode();
+    }
+      // Add at the bottom of your JS script section or inside a <script> tag
+
+        function previousLesson() {
+      if (currentLessonIndex > 0) {
+        currentLessonIndex--;
+        selectLesson(currentLessonIndex);
+      }
+    }
+
+    function nextLesson() {
+      if (!quizCompleted()) {
+        alert("Please complete the quiz and answer all questions correctly before proceeding.");
+        return;
+      }
+
+      const videoId = lessonsData[currentLessonIndex].video;
+      if (!completedLessons.includes(videoId)) {
+        completedLessons.push(videoId);
+        localStorage.setItem("completedLessons", JSON.stringify(completedLessons));
+      }
+
+      updateProgressBar();
+
+      if (currentLessonIndex < lessonsData.length - 1) {
+        currentLessonIndex++;
+        selectLesson(currentLessonIndex);
+      } else {
+        alert("You've reached the end of the course!");
+      }
+    }
+
+    function quizCompleted() {
+      const quiz = lessonsData[currentLessonIndex].quiz;
+      if (!quiz || quiz.length === 0) return true;
+
+      const results = quizResults[lessonsData[currentLessonIndex].video];
+      return results && results.every(r => r.correct);
+    }
+
+    function selectLesson(index) {
+      currentLessonIndex = index;
+      const lesson = lessonsData[index];
+
+      
+      videoTitle.textContent = `📺 ${lesson.title}`;
+      downloadBtn.href = `#`;
+
+      // Update active lesson
+      document.querySelectorAll(".lesson").forEach(el => el.classList.remove("active"));
+      document.querySelectorAll(".lesson")[index].classList.add("active");
+
+      // Load quiz
+      renderQuiz();
+
+      // Load notes
+      lessonNotes.value = notesData[lesson.video] || "";
+
+      // Show quiz and notes
+      quizContainer.style.display = "block";
+      notesContainer.style.display = "block";
+    }
+
+    function renderQuiz() {
+      const lesson = lessonsData[currentLessonIndex];
+      const quiz = lesson.quiz || [];
+      quizContent.innerHTML = "";
+
+      quiz.forEach((q, i) => {
+        const div = document.createElement("div");
+        div.className = "quiz-question";
+        div.innerHTML = `
+          <strong>${i + 1}. ${q.question}</strong>
+          <div class="quiz-options">
+            ${q.options.map((opt, j) => `
+              <div class="quiz-option">
+                <input type="radio" name="quiz${i}" value="${j}" id="q${i}_${j}" />
+                <label for="q${i}_${j}">${opt}</label>
+              </div>
+            `).join('')}
+          </div>
+        `;
+        quizContent.appendChild(div);
+      });
+    }
+
+    function checkQuiz() {
+      const lesson = lessonsData[currentLessonIndex];
+      const quiz = lesson.quiz || [];
+      const videoId = lesson.video;
+      const results = [];
+      let allCorrect = true;
+
+      quiz.forEach((q, i) => {
+        const selected = document.querySelector(`input[name='quiz${i}']:checked`);
+        const selectedIndex = selected ? parseInt(selected.value) : -1;
+        const correct = selectedIndex === q.answer;
+        results.push({ selected: selectedIndex, correct });
+        if (!correct) allCorrect = false;
+      });
+
+      quizResults[videoId] = results;
+      localStorage.setItem("quizResults", JSON.stringify(quizResults));
+
+      quizFeedback.style.display = 'block';
+      quizFeedback.textContent = allCorrect ? "✅ All answers are correct! You may proceed." : "❌ Some answers are incorrect. Please review and try again.";
+      quizFeedback.className = `quiz-feedback ${allCorrect ? 'quiz-correct' : 'quiz-wrong'}`;
+
+      updateProgressBar();
+    }
+
+    lessonNotes.addEventListener("input", () => {
+      notesData[lessonsData[currentLessonIndex].video] = lessonNotes.value;
+      localStorage.setItem("lessonNotes", JSON.stringify(notesData));
+    });
+
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      document.body.classList.toggle("dark-mode", darkMode);
+      localStorage.setItem("darkMode", darkMode);
+    }
+
+    window.onload = init;
+
+    // Original functions remain unchanged
+    function renderLessons() {
+      container.innerHTML = '';
+      lessonsData.forEach((lesson, i) => {
+        const isCompleted = completedLessons.includes(lesson.video);
+        const div = document.createElement("div");
+        div.className = `lesson${isCompleted ? ' completed' : ''}`;
+        div.dataset.index = i;
+        const [mainTitle, subtitle] = lesson.title.split(':');
+
+        div.innerHTML = `
+          <div class="status-circle"></div>
+          <div class="lesson-text">
+            <div class="lesson-title">${mainTitle.trim()}</div>
+            <div class="lesson-subtitle">${subtitle.trim()}</div>
+          </div>
+        `;
+        div.onclick = () => selectLesson(i);
+        container.appendChild(div);
+      });
+    }
+
+    function updateProgressBar() {
+      const percent = Math.round((completedLessons.length / lessonsData.length) * 100);
+      progressBar.style.width = percent + '%';
+      overallPercent.textContent = percent + '%';
+      
+      // Show certificate section if all lessons completed
+      if (completedLessons.length === lessonsData.length) {
+        certificateSection.style.display = 'block';
+      } else {
+        certificateSection.style.display = 'none';
+      }
+    }
+
+    // Modified selectLesson to include new features
+    function selectLesson(index) {
+      currentLessonIndex = index;
+      document.querySelectorAll('.lesson').forEach(l => l.classList.remove('active'));
+      document.querySelector(`.lesson[data-index="${index}"]`).classList.add('active');
+      const lesson = lessonsData[index];
+      videoTitle.innerText = `📺 ${lesson.title}`;
+      videoPlayer.src = `https://www.youtube-nocookie.com/embed/${lesson.video}?enablejsapi=1`;
+      downloadBtn.href = `${lesson.video}.zip`;
+      
+      // Handle quiz display
+      if (lesson.quiz && lesson.quiz.length > 0) {
+        quizContainer.style.display = 'block';
+        renderQuiz(lesson.quiz);
+      } else {
+        quizContainer.style.display = 'none';
+      }
+      
+      // Handle notes display
+      notesContainer.style.display = 'block';
+      loadNotes();
+      
+      // Update continue button text
+      updateContinueButton();
+    }
+
+    // New functions for added features
+    function renderQuiz(quiz) {
+      quizContent.innerHTML = quiz.map((q, qIndex) => `
+        <div class="quiz-question">
+          <p>${qIndex + 1}. ${q.question}</p>
+          <div class="quiz-options">
+            ${q.options.map((opt, optIndex) => `
+              <div class="quiz-option">
+                <input type="radio" name="q${qIndex}" id="q${qIndex}_${optIndex}" value="${optIndex}" 
+                  ${quizResults[lessonsData[currentLessonIndex].video]?.[qIndex] === optIndex ? 'checked' : ''}>
+                <label for="q${qIndex}_${optIndex}">${opt}</label>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `).join('');
+      quizFeedback.style.display = 'none';
+    }
+
+    function checkQuiz() {
+      const lesson = lessonsData[currentLessonIndex];
+      if (!lesson.quiz || lesson.quiz.length === 0) return true;
+      
+      let allCorrect = true;
+      const userAnswers = {};
+      
+      lesson.quiz.forEach((q, qIndex) => {
+        const selectedOption = document.querySelector(`input[name="q${qIndex}"]:checked`);
+        if (selectedOption) {
+          userAnswers[qIndex] = parseInt(selectedOption.value);
+          if (parseInt(selectedOption.value) !== q.answer) {
+            allCorrect = false;
+          }
+        } else {
+          allCorrect = false;
+        }
+      });
+      
+      // Save quiz results
+      quizResults[lesson.video] = userAnswers;
+      localStorage.setItem('quizResults', JSON.stringify(quizResults));
+      
+      // Show feedback
+      quizFeedback.textContent = allCorrect ? 
+        '✅ All answers correct! Well done!' : 
+        '❌ Some answers are incorrect. Please try again.';
+      quizFeedback.className = `quiz-feedback ${allCorrect ? 'quiz-correct' : 'quiz-wrong'}`;
+      quizFeedback.style.display = 'block';
+      
+      return allCorrect;
+    }
+    function checkCourseCompletion(progress) {
+  if (progress >= 100) {
+    document.getElementById("certificateSection").classList.remove("hidden");
+  }
+}
+
+
+    function loadNotes() {
+      const lesson = lessonsData[currentLessonIndex];
+      lessonNotes.value = notesData[lesson.video] || '';
+    }
+
+    function saveNotes() {
+      const lesson = lessonsData[currentLessonIndex];
+      notesData[lesson.video] = lessonNotes.value;
+      localStorage.setItem('lessonNotes', JSON.stringify(notesData));
+    }
+
+    function updateContinueButton() {
+      const isCompleted = completedLessons.includes(lessonsData[currentLessonIndex].video);
+      continueBtn.textContent = isCompleted ? 'Continue →' : '✅ Complete & Continue';
+    }
+
+    function toggleDarkMode() {
+      darkMode = !darkMode;
+      localStorage.setItem('darkMode', darkMode);
+      applyDarkMode();
+    }
+
+    function applyDarkMode() {
+      if (darkMode) {
+        document.body.classList.add('dark-mode');
+        document.querySelector('.theme-toggle').textContent = '☀️ Light Mode';
+      } else {
+        document.body.classList.remove('dark-mode');
+        document.querySelector('.theme-toggle').textContent = '🌙 Dark Mode';
+      }
+    }
+   
+
+   
+
+    // Modified markAsCompleted to require quiz completion
+    function markAsCompleted(index) {
+      const videoId = lessonsData[index].video;
+      if (!completedLessons.includes(videoId)) {
+        // Check if lesson has quiz and if it's completed correctly
+        if (lessonsData[index].quiz && lessonsData[index].quiz.length > 0) {
+          if (!checkQuiz()) {
+            return false; // Don't mark as completed if quiz isn't passed
+          }
+        }
+        
+        completedLessons.push(videoId);
+        localStorage.setItem('completedLessons', JSON.stringify(completedLessons));
+        renderLessons();
+        updateProgressBar();
+      }
+      return true;
+    }
+
+    // Modified nextLesson to handle quiz completion
+    function nextLesson() {
+      if (markAsCompleted(currentLessonIndex)) {
+        if (currentLessonIndex < lessonsData.length - 1) {
+          selectLesson(currentLessonIndex + 1);
+        }
+      }
+    }
+
+    // Original YouTube player functions
+    let player;
+    function onYouTubeIframeAPIReady() {
+      player = new YT.Player('videoPlayer', {
+        events: { 'onStateChange': onPlayerStateChange }
+      });
+    }
+    
+
+    function onPlayerStateChange(event) {
+      if (event.data === YT.PlayerState.ENDED) {
+        markAsCompleted(currentLessonIndex);
+      }
+    }
+
+    // Event listeners for new features
+    lessonNotes.addEventListener('input', saveNotes);
+    
+
+    // Initialize the application
+    init();
+    
+  </script>
+  <!-- This should be inside the main body or a container -->
+
+  
+ 
+</body>
+</html>

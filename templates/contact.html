@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8" />
+    <title>Contact Us</title>
+    
+    <!-- Fontawesome CDN Link -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Poppins", sans-serif;
+          }
+          
+          body {
+            min-height: 100vh;
+            width: 100%;
+            background: #c8e8e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+          }
+          
+          .container {
+            max-width: 1100px;
+            width: 100%;
+            background: #fff;
+            border-radius: 6px;
+            padding: 20px 60px 30px 40px;
+            box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          }
+          
+          .container .content {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+          }
+          
+          .container .content .left-side {
+            width: 25%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-top: 15px;
+            position: relative;
+          }
+          
+          .content .left-side::before {
+            content: "";
+            position: absolute;
+            height: 70%;
+            width: 2px;
+            right: -15px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: #afafb6;
+          }
+          
+          .content .left-side .details {
+            margin: 14px;
+            text-align: center;
+          }
+          
+          .content .left-side .details i {
+            font-size: 30px;
+            color: #3e2093;
+            margin-bottom: 10px;
+          }
+          
+          .content .left-side .details .topic {
+            font-size: 18px;
+            font-weight: 500;
+          }
+          
+          .content .left-side .details .text-one,
+          .content .left-side .details .text-two {
+            font-size: 14px;
+            color: #afafb6;
+          }
+          
+          .container .content .right-side {
+            width: 75%;
+            margin-left: 75px;
+          }
+          
+          .content .right-side .topic-text {
+            font-size: 23px;
+            font-weight: 600;
+            color: #3e2093;
+          }
+          
+          .right-side .input-box {
+            height: 55px;
+            width: 100%;
+            margin: 12px 0;
+          }
+          
+          .right-side .input-box input,
+          .right-side .input-box textarea {
+            height: 100%;
+            width: 100%;
+            border: none;
+            outline: none;
+            font-size: 16px;
+            background: #f0f1f8;
+            border-radius: 6px;
+            padding: 0 15px;
+            resize: none;
+          }
+          
+          .right-side .message-box {
+            min-height: 110px;
+          }
+          
+          .right-side .input-box textarea {
+            padding-top: 6px;
+          }
+          
+          .right-side .button {
+            display: inline-block;
+            margin-top: 12px;
+          }
+          
+          .right-side .button input[type="button"],
+          .right-side .button input[type="submit"] {
+            color: #fff;
+            font-size: 18px;
+            outline: none;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            background: #3e2093;
+            cursor: pointer;
+            transition: all 0.3s ease;
+          }
+          
+          .button input[type="button"]:hover,
+          .button input[type="submit"]:hover {
+            background: #5029bc;
+          }
+          
+          /* WhatsApp Button */
+          .whatsapp.details {
+            margin-top: 15px;
+          }
+          
+          .whatsapp.details a {
+            display: inline-block;
+            background: #25D366;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-size: 16px;
+            text-decoration: none;
+          }
+          
+          .whatsapp.details a:hover {
+            background: #1EBEA5;
+          }
+          
+          @media (max-width: 950px) {
+            .container {
+              width: 90%;
+              padding: 30px 40px 40px 35px;
+            }
+            .container .content .right-side {
+              width: 75%;
+              margin-left: 55px;
+            }
+          }
+          
+          @media (max-width: 820px) {
+            .container {
+              margin: 40px 0;
+              height: 100%;
+            }
+            .container .content {
+              flex-direction: column-reverse;
+            }
+            .container .content .left-side {
+              width: 100%;
+              flex-direction: row;
+              margin-top: 40px;
+              justify-content: center;
+              flex-wrap: wrap;
+            }
+            .container .content .left-side::before {
+              display: none;
+            }
+            .container .content .right-side {
+              width: 100%;
+              margin-left: 0;
+            }
+          }
+          header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: linear-gradient(90deg,#3244ff, #32a5ff);
+            color: white;
+            position: fixed;
+            width: 100%;
+            top: 0;
+            z-index: 1000;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+            margin-bottom: 0;
+        }
+        
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+        
+        nav ul {
+            list-style: none;
+            display: flex;
+        }
+        
+        nav ul li {
+            margin: 0 15px;
+            position: relative;
+        }
+        
+        nav ul li a {
+            color: white;
+            text-decoration: none;
+            font-weight: bold;
+            font-size: 16px;
+            padding: 10px;
+            transition: 0.3s;
+            padding-top: 60px;
+        }
+        
+        /* Navigation Hover Effects */
+        nav ul li a:hover {
+            color: #ffeb3b;
+            transform: scale(1.1);
+        }
+        
+        /* Underline Animation */
+        nav ul li::after {
+            content: "";
+            position: absolute;
+            left: 0;
+            bottom: -5px;
+            width: 100%;
+            height: 3px;
+            background: #ffeb3b;
+            transform: scaleX(0);
+            transition: transform 0.3s ease-in-out;
+        }
+        
+        nav ul li:hover::after {
+            transform: scaleX(1);
+        }
+        
+           /* Dropdown menu styles */
+        .dropdown {
+            position: relative;
+            display: inline-block;
+        }
+        
+        .dropdown .dropbtn {
+            
+            color: white;
+            padding: 10px 15px;
+            font-size: 18px;
+            border: none;
+            cursor: pointer;
+            
+        }
+        
+        
+        
+        .dropdown-content {
+            display: none;
+            position: absolute;
+            background-color:white;
+            width: 200px;
+            
+            margin-top: 10px;
+            z-index: 1;
+            
+        }
+        
+        .dropdown-content a {
+            color: black;
+          padding-top: 20px;
+            text-decoration: none;
+            display: block;
+            
+        }
+        
+        .dropdown-content a:hover {
+            background-color: #32a5ff;
+            color: white;
+            margin-top: 2px;
+            margin-left:-7px;
+            margin-right:-7px;
+            
+        }
+        
+        .dropdown:hover .dropdown-content {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">Ravanan.Info</div>
+        <nav>
+            <ul>
+                <li><a href="home.html">Home</a></li>
+                <li class="dropdown">
+                <a href="#" class="dropbtn">Services</a>
+                <ul class="dropdown-content">
+                    <li><a href="#">Web Development</a></li>
+                    <li><a href="#">Software Development</a></li>
+                    <li><a href="#">SEO Optimization</a></li>
+                
+                </ul>
+                </li>
+            
+                <li><a href="about.html">About Us</a></li>
+                <li><a href="contact.html">Contact</a></li>
+                <li><a href="client.html">Client</a></li>
+            </ul>
+        </nav>
+    </header>
+
+
+
+    <div class="container">
+        <div class="content">
+            <div class="left-side">
+                <div class="address details">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div class="topic">Address</div>
+                    <div class="text-one">Surkhet, NP12</div>
+                    <div class="text-two">Birendranagar 06</div>
+                </div>
+                <div class="phone details">
+                    <i class="fas fa-phone-alt"></i>
+                    <div class="topic">Phone</div>
+                    <div class="text-one">+7418678983</div>
+                    <div class="text-two">+7418678984</div>
+                </div>
+                <div class="email details">
+                    <i class="fas fa-envelope"></i>
+                    <div class="topic">Email</div>
+                    <div class="text-one">ravananinfo@gmail.com</div>
+                </div>
+                <!-- WhatsApp Button -->
+                <div class="whatsapp details">
+                    <i class="fab fa-whatsapp"></i>
+                    <div class="topic">WhatsApp</div>
+                    <a id="whatsappBtn" href="#" target="_blank">Chat on WhatsApp</a>
+                </div>
+            </div>
+            <div class="right-side">
+                <div class="topic-text">Send us a message</div>
+                <p>If you have any work from me or any types of queries related to my tutorial, you can send me a message from here.</p>
+                <form id="contactForm">
+                    <div class="input-box">
+                        <input type="text" id="name" placeholder="Enter your name" required />
+                    </div>
+                    <div class="input-box">
+                        <input type="email" id="email" placeholder="Enter your email" required />
+                    </div>
+                    <div class="input-box message-box">
+                        <textarea id="message" placeholder="Enter your message" required></textarea>
+                    </div>
+                    <div class="button">
+                        <input type="submit" value="Send Now" />
+                    </div>
+                </form>
+                <p id="responseMessage"></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

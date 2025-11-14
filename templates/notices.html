@@ -1,0 +1,24 @@
+<!-- notices.html -->
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Contest Notices</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center p-6">
+
+    <div class="bg-white shadow-xl rounded-2xl p-8 max-w-2xl text-center space-y-6">
+        <img src="{% static 'images/contest1.png' %}" alt="Contest" class="w-24 h-24 mx-auto rounded-full shadow-md">
+        <h1 class="text-3xl font-bold text-gray-800">Welcome to the Contest Portal!</h1>
+        <p class="text-gray-600 text-lg">Here you’ll find the latest updates, announcements, and instructions related to the ongoing or upcoming contests.</p>
+
+        <div class="border-t border-gray-200 pt-4">
+            <h2 class="text-xl font-semibold text-gray-700">Need Assistance?</h2>
+            <p class="text-gray-500">Get in touch with us at <a href="mailto:support@techmatrix.com" class="text-blue-500 hover:underline">support@techmatrix.com</a></p>
+        </div>
+    </div>
+
+</body>
+</html>

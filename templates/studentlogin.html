@@ -1,0 +1,33 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="max-w-5xl mx-auto p-6">
+  <!-- Profile -->
+  <div class="bg-white shadow rounded-lg p-4 mb-6 flex items-center">
+    <img src="{% static 'profile/default.png' %}" alt="Profile" class="w-16 h-16 rounded-full mr-4">
+    <div>
+      <h2 class="text-xl font-bold">{{ user.get_full_name }}</h2>
+      <p class="text-gray-600">{{ user.email }}</p>
+    </div>
+  </div>
+
+  <!-- Enrolled Courses -->
+  <div class="bg-white shadow rounded-lg p-6">
+    <h3 class="text-lg font-semibold mb-4">Enrolled Courses</h3>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      {% for enrollment in enrolled_courses %}
+      <div class="border p-4 rounded shadow">
+        <h4 class="font-semibold">{{ enrollment.course.title }}</h4>
+        <p>Progress: {{ enrollment.progress }}%</p>
+        <div class="mt-2">
+          <a href="{% url 'start_course' enrollment.course.id %}" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">Start Course</a>
+        </div>
+      </div>
+      {% empty %}
+      <p class="text-gray-500">You have not enrolled in any courses yet.</p>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Final Assessment | Tech Matrix</title>
+
+<script>
+const userFullName = "{{ full_name|escapejs }}";
+
+// Submit assessment
+function submitAssessment() {
+    let totalQuestions = 3;
+    let score = 0;
+
+    const q1 = document.querySelector('input[name="q1"]:checked');
+    const q2 = document.querySelector('input[name="q2"]:checked');
+    const q3 = document.querySelector('input[name="q3"]:checked');
+
+    if (q1 && q1.value === 'b') score++;
+    if (q2 && q2.value === 'a') score++;
+    if (q3 && q3.value === 'c') score++;
+
+    const percentage = (score / totalQuestions) * 100;
+    document.getElementById('score_input').value = percentage;
+    document.getElementById('assessment_form').submit();
+}
+
+// Open certificate in new window (manual download via print)
+function showCertificate() {
+    const certificateWindow = window.open('', '_blank');
+    certificateWindow.document.write(`
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Certificate of Completion</title>
+        <style>
+          body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background-color: #f9f9f9; }
+          .certificate { border: 15px solid #27ae60; padding: 40px; max-width: 800px; margin: 0 auto; background: white; }
+          h1 { color: #27ae60; font-size: 2.5rem; }
+          .signature { margin-top: 50px; }
+          button { margin-top: 20px; padding: 10px 20px; background-color: #27ae60; color: white; border: none; border-radius: 6px; cursor: pointer; }
+        </style>
+      </head>
+      <body>
+        <div class="certificate">
+          <h1>Certificate of Completion</h1>
+          <p>This is to certify that</p>
+          <h2>${userFullName}</h2>
+          <p>has successfully completed the</p>
+          <h3>Django Full Course - தமிழ்</h3>
+          <p>on ${new Date().toLocaleDateString()}</p>
+          <div class="signature">
+            <p>_________________________</p>
+            <p>Course Instructor</p>
+          </div>
+          <button onclick="window.print()">🖨️ Print / Save Certificate</button>
+        </div>
+      </body>
+      </html>
+    `);
+    certificateWindow.document.close();
+}
+
+// Auto show certificate if already passed
+{% if passed %}
+    window.onload = function() { showCertificate(); }
+{% endif %}
+</script>
+
+<style>
+body { font-family: Arial, sans-serif; padding: 20px; background-color: #f9f9f9; }
+h1 { color: #27ae60; }
+.question { margin-bottom: 20px; }
+button { cursor: pointer; background-color: #27ae60; color: white; padding: 10px 20px; border: none; border-radius: 6px; margin-top: 10px; }
+</style>
+</head>
+<body>
+
+<h1>Final Assessment</h1>
+
+{% if passed %}
+    <p>🎉 You already passed! Your certificate is available below.</p>
+    <button onclick="showCertificate()">🎓 View / Download Certificate</button>
+{% else %}
+    <p>Answer the following questions:</p>
+    <form id="assessment_form" method="POST">
+        {% csrf_token %}
+        <input type="hidden" id="score_input" name="score">
+        
+        <div class="question">
+            <p>1. Which command is used to create a new Django project?</p>
+            <label><input type="radio" name="q1" value="a"> django startapp</label><br>
+            <label><input type="radio" name="q1" value="b"> django-admin startproject</label><br>
+            <label><input type="radio" name="q1" value="c"> python manage.py createproject</label>
+        </div>
+
+        <div class="question">
+            <p>2. Which file contains URL patterns in a Django app?</p>
+            <label><input type="radio" name="q2" value="a"> urls.py</label><br>
+            <label><input type="radio" name="q2" value="b"> views.py</label><br>
+            <label><input type="radio" name="q2" value="c"> settings.py</label>
+        </div>
+
+        <div class="question">
+            <p>3. Which of the following is used to run the Django development server?</p>
+            <label><input type="radio" name="q3" value="a"> python manage.py shell</label><br>
+            <label><input type="radio" name="q3" value="b"> python manage.py migrate</label><br>
+            <label><input type="radio" name="q3" value="c"> python manage.py runserver</label>
+        </div>
+
+        <button type="button" onclick="submitAssessment()">Submit Assessment</button>
+    </form>
+
+    {% if score is defined %}
+        <p>Your score: {{ score }}%</p>
+        {% if passed %}
+            <p>🎉 You passed! Your certificate is available below.</p>
+            <button onclick="showCertificate()">🎓 View / Download Certificate</button>
+        {% else %}
+            <p>❌ You failed. Please reattempt the exam.</p>
+        {% endif %}
+    {% endif %}
+{% endif %}
+
+</body>
+</html>

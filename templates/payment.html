@@ -1,0 +1,50 @@
+<!-- payment.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment Page</title>
+</head>
+<body>
+    <h1>Complete Your Payment for {{ course_name }}</h1>
+    <img src="" alt="" style="width: 200px;">
+    
+    <form action="{% url 'payment_success' %}" method="POST" id="razorpay-payment-form">
+        {% csrf_token %}
+        <input type="hidden" name="razorpay_order_id" value="{{ payment.id }}">
+        <input type="hidden" name="razorpay_payment_id" id="razorpay_payment_id">
+        <input type="hidden" name="razorpay_signature" id="razorpay_signature">
+
+        >
+    </form>
+
+    <!-- Razorpay Checkout Script -->
+    <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+    <script>
+        var options = {
+            "key": "{{ key_id }}", // Razorpay key ID
+            "amount": "{{ payment.amount }}", // Amount in paise (₹49900)
+            "currency": "INR",
+            "order_id": "{{ payment.id }}",
+            "name": "Course Enrollment",
+            "description": "Enroll in {{ course_name }}",
+            "image": "{{ course_image }}",
+            "handler": function (response) {
+                document.getElementById('razorpay_payment_id').value = response.razorpay_payment_id;
+                document.getElementById('razorpay_signature').value = response.razorpay_signature;
+                document.getElementById('razorpay-payment-form').submit();
+            },
+            "prefill": {
+                "email": "test@example.com", // You can prefill this with dummy email for testing
+                "contact": "1234567890" // You can prefill this with a dummy phone number for testing
+            }
+        };
+        var rzp1 = new Razorpay(options);
+        rzp1.on('payment.failed', function (response) {
+            alert(response.error.description);
+        });
+        rzp1.open();
+    </script>
+</body>
+</html>
