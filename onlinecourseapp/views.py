@@ -537,11 +537,10 @@ from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView,
     PasswordResetConfirmView, PasswordResetCompleteView
 )
-from django.contrib.auth.views import PasswordResetView
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
-from django.urls import reverse
+from django.urls import reverse_lazy  # Use reverse_lazy instead of reverse
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.template.loader import render_to_string
@@ -552,7 +551,7 @@ User = get_user_model()
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'password_reset.html'
-    success_url = reverse('password_reset_done')
+    success_url = reverse_lazy('password_reset_done')  # ✅ use reverse_lazy
     form_class = PasswordResetForm
 
     def form_valid(self, form):
@@ -563,7 +562,7 @@ class CustomPasswordResetView(PasswordResetView):
             uid = urlsafe_base64_encode(force_bytes(user.pk))
             token = default_token_generator.make_token(user)
             reset_link = self.request.build_absolute_uri(
-                reverse('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+                reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
             )
 
             body = render_to_string('password_reset_email.html', {
@@ -574,19 +573,17 @@ class CustomPasswordResetView(PasswordResetView):
             try:
                 resend.emails.send(
                     from_email="TechMatrix <onboarding@resend.dev>",
-                    to=[email],  # make sure it’s a list
+                    to=[email],  # Must be a list
                     subject="Password Reset Request",
                     html=body
                 )
             except Exception as e:
                 # Log the error
                 print("Resend API error:", e)
-                # Optionally, you can return a friendly message instead of crashing
                 form.add_error(None, "Failed to send reset email. Try again later.")
                 return self.form_invalid(form)
 
         return super().form_valid(form)
-
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
@@ -595,12 +592,11 @@ class CustomPasswordResetDoneView(PasswordResetDoneView):
 
 class CustomPasswordResetConfirmView(PasswordResetConfirmView):
     template_name = 'password_reset_confirm.html'
-    success_url = reverse_lazy('password_reset_complete')
+    success_url = reverse_lazy('password_reset_complete')  # ✅ correct
 
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'
-
 
 # ---------------------- OTHER STATIC VIEWS ----------------------
 def lesson_view(request, course_id): 
