@@ -13,8 +13,8 @@ urlpatterns = [
     path('download_certificate/', views.download_certificate, name='download_certificate'),
 
     path('login/', views.login_view, name='login'),
-    path('verify-otp/', views.verify_otp, name='verify_otp'),
-    path('resend-otp/', views.resend_otp, name='resend_otp'),
+   # path('verify-otp/', views.verify_otp, name='verify_otp'),
+   # path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('register/', views.register, name='register'),
 
