@@ -611,7 +611,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Course  # adjust import according to your project
 
 @login_required
-def django(request, course_id):
+def django_course(request, course_id):
     course = get_object_or_404(Course, id=course_id)
     
     context = {
@@ -620,7 +620,6 @@ def django(request, course_id):
     }
     
     return render(request, 'django.html', context)
-
 def emc(request, course_id):
     return render(request, 'emc.html', {'course_id': course_id})
 from django.contrib.auth.decorators import login_required
