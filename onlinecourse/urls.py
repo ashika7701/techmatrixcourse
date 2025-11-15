@@ -4,12 +4,6 @@ from django.conf import settings
 from django.conf.urls.static import static
 from onlinecourseapp import views
 from django.contrib.auth import views as auth_views
-from onlinecourseapp.views import (
-    CustomPasswordResetView,
-    CustomPasswordResetDoneView,
-    CustomPasswordResetConfirmView,
-    CustomPasswordResetCompleteView
-)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -24,11 +18,10 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('register/', views.register, name='register'),
 
-    # Password reset
-    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
-    path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('password-reset/', views.CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', views.CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', views.CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', views.CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('enroll/', views.enroll_view, name='enroll'),
