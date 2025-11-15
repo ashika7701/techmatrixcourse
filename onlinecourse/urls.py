@@ -21,17 +21,12 @@ urlpatterns = [
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('register/', views.register, name='register'),
-    path('password-reset/', auth_views.PasswordResetView.as_view(template_name='password_reset.html'), name='password_reset'),
-    path('password-reset/done/', auth_views.PasswordResetDoneView.as_view(template_name='password_reset_done.html'), name='password_reset_done'),
-    path(
-        'reset/<uidb64>/<token>/',
-        auth_views.PasswordResetConfirmView.as_view(
-            template_name='password_reset_confirm.html',
-            success_url='/reset/done/'  # <-- Add this line
-        ),
-        name='password_reset_confirm'
-    ),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(template_name='password_reset_complete.html'), name='password_reset_complete'),
+   
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
     # Dashboard & Enrollment
     path('dashboard/', views.dashboard_view, name='dashboard'),
     path('enroll/', views.enroll_view, name='enroll'),
@@ -72,3 +67,7 @@ path('dsfinal_assessment/', views.ds_final_assessment, name='ds_final_assessment
 # ✅ Static + Media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+from .views import (
+    CustomPasswordResetView, CustomPasswordResetDoneView,
+    CustomPasswordResetConfirmView, CustomPasswordResetCompleteView
+)

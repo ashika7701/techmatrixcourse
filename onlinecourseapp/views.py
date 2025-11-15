@@ -534,12 +534,61 @@ COURSE_IMAGES = {
 }
 
 
+from django.contrib.auth.views import (
+    PasswordResetView, PasswordResetDoneView,
+    PasswordResetConfirmView, PasswordResetCompleteView
+)
+from django.urls import reverse_lazy
+from django.contrib.auth.forms import PasswordResetForm
+from django.template.loader import render_to_string
+from django.utils.http import urlsafe_base64_encode
+from django.utils.encoding import force_bytes
+from django.contrib.auth.tokens import default_token_generator
+from django.contrib.auth import get_user_model
+import resend
+
+# Set your Resend API key
+RESEND_API_KEY = "YOUR_RESEND_API_KEY"
+resend.api_key = RESEND_API_KEY
+
+User = get_user_model()
 
 # ---------------------- PASSWORD RESET ----------------------
 class CustomPasswordResetView(PasswordResetView):
     template_name = 'password_reset.html'
-    email_template_name = 'password_reset_email.html'
     success_url = reverse_lazy('password_reset_done')
+    form_class = PasswordResetForm
+
+    def form_valid(self, form):
+        """
+        Override form_valid to send password reset emails via Resend API
+        """
+        email = form.cleaned_data['email']
+        users = form.get_users(email)
+
+        for user in users:
+            # Generate password reset token
+            uid = urlsafe_base64_encode(force_bytes(user.pk))
+            token = default_token_generator.make_token(user)
+            reset_link = self.request.build_absolute_uri(
+                reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
+            )
+
+            # Render email body using template (optional)
+            body = render_to_string('password_reset_email.html', {
+                'user': user,
+                'reset_link': reset_link,
+            })
+
+            # Send email via Resend API
+            resend.emails.send(
+                from_email="TechMatrix <onboarding@resend.dev>",
+                to=email,
+                subject="Password Reset Request",
+                html=body
+            )
+
+        return super().form_valid(form)
 
 
 class CustomPasswordResetDoneView(PasswordResetDoneView):
