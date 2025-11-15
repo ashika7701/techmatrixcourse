@@ -6,8 +6,6 @@ from pathlib import Path
 import os
 from decouple import config
 import dj_database_url
-from dotenv import load_dotenv
-load_dotenv()
 
 # -------------------------------
 # BASE DIR
