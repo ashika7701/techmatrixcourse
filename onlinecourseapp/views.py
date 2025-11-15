@@ -324,7 +324,7 @@ def payment_success(request):
 def register(request):
     return render(request, "accounts/register.html")
 
-
+"""
 def generate_hashed_otp():
     otp = random.randint(100000, 999999)
     hashed_otp = hashlib.sha256(str(otp).encode()).hexdigest()
@@ -484,6 +484,34 @@ def resend_otp(request):
         messages.error(request, f"Error resending OTP: {str(e)}")
 
     return redirect('verify_otp')
+"""
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import authenticate, login
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# --------------------------------
+# SIMPLE LOGIN (NO OTP, NO EMAIL)
+# --------------------------------
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST.get('email')
+        password = request.POST.get('password')
+
+        # Authenticate user
+        user = authenticate(request, username=email, password=password)
+
+        if user is not None:
+            login(request, user)
+            messages.success(request, "Login successful!")
+            return redirect('dashboard')
+        else:
+            messages.error(request, "Invalid email or password.")
+            return redirect('login')
+
+    return render(request, 'login.html')
 
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
