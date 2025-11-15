@@ -5,6 +5,13 @@ from django.conf.urls.static import static
 from onlinecourseapp import views
 from django.contrib.auth import views as auth_views
 from django.contrib.auth.views import LogoutView
+from django.urls import path
+from .views import (
+    CustomPasswordResetView,
+    CustomPasswordResetDoneView,
+    CustomPasswordResetConfirmView,
+    CustomPasswordResetCompleteView
+)
 
 urlpatterns = [
     # Admin panel
@@ -67,7 +74,3 @@ path('dsfinal_assessment/', views.ds_final_assessment, name='ds_final_assessment
 # ✅ Static + Media files during development
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
-from .views import (
-    CustomPasswordResetView, CustomPasswordResetDoneView,
-    CustomPasswordResetConfirmView, CustomPasswordResetCompleteView
-)
