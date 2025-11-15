@@ -340,6 +340,38 @@ from django.conf import settings
 import hashlib
 
 otp_storage = {}  # Make sure this is global or use cache
+import hashlib
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from django.contrib.auth import authenticate, login, get_user_model
+from django.conf import settings
+import resend
+
+User = get_user_model()
+
+# Temporary OTP storage (Keep your original dict)
+otp_storage = {}
+
+# -------------------------------
+# Function to send OTP via RESEND
+# -------------------------------
+def send_otp_email(email, otp):
+    try:
+        resend.Emails.send(
+            {
+                "from": "TechMatrix <onboarding@resend.dev>",
+                "to": email,
+                "subject": "Your Login OTP",
+                "html": f"<p>Your OTP is: <strong>{otp}</strong></p>",
+            }
+        )
+    except Exception as e:
+        print("Resend Email Error:", e)
+
+
+# -------------------------------
+# LOGIN VIEW (updated with Resend OTP)
+# -------------------------------
 def login_view(request):
     if request.method == 'POST':
         email = request.POST.get('email')
@@ -348,25 +380,21 @@ def login_view(request):
         user_obj = authenticate(request, username=email, password=password)
 
         if user_obj:
-            # 1. Read device token from cookie
+            # 1. Device token read from cookie
             device_token = request.COOKIES.get('device_token')
 
-            # 2. If device token exists and is trusted -> login directly
+            # 2. If trusted device → instant login
             if device_token and device_token in user_obj.trusted_devices:
                 login(request, user_obj)
                 messages.success(request, "Login successful!")
                 return redirect('dashboard')
 
-            # 3. Otherwise → New device → send OTP
+            # 3. New device → OTP verification
             otp, hashed_otp = generate_hashed_otp()
             otp_storage[email] = hashed_otp
 
-            send_mail(
-                'Your Login OTP',
-                f'Your OTP is: {otp}',
-                settings.DEFAULT_FROM_EMAIL,
-                [email],
-            )
+            # Send OTP email using Resend
+            send_otp_email(email, otp)
 
             request.session['pending_email'] = email
             return redirect('verify_otp')
@@ -377,6 +405,10 @@ def login_view(request):
 
     return render(request, 'login.html')
 
+
+# -------------------------------
+# VERIFY OTP
+# -------------------------------
 def verify_otp(request):
     email = request.session.get('pending_email')
 
@@ -391,28 +423,30 @@ def verify_otp(request):
             entered_hash = hashlib.sha256(str(entered_otp).encode()).hexdigest()
 
             if otp_storage[email] == entered_hash:
+                # OTP OK → Login user
                 user = get_object_or_404(User, email=email)
                 login(request, user)
 
-                # Generate device token
+                # Create device token
                 device_token = generate_device_token()
 
-                # Save token to user's trusted devices
+                # Add to trusted devices
                 user.trusted_devices.append(device_token)
                 user.save()
 
-                # Remove session otp data
+                # Clear session OTP
                 request.session.pop('pending_email', None)
                 otp_storage.pop(email, None)
 
-                # Create response to set cookie
+                # Set device cookie
                 response = redirect('dashboard')
                 response.set_cookie(
                     'device_token',
                     device_token,
                     max_age=365 * 24 * 60 * 60,  # 1 year
                     httponly=True,
-                    secure=False  # Set True in production (HTTPS)
+                    secure=True,   # IMPORTANT: Set True in production
+                    samesite="None"
                 )
 
                 messages.success(request, "Login successful!")
@@ -426,8 +460,13 @@ def verify_otp(request):
 
     return render(request, 'verify_otp.html')
 
+
+# -------------------------------
+# RESEND OTP
+# -------------------------------
 def resend_otp(request):
     email = request.session.get('pending_email')
+
     if not email:
         messages.error(request, "Session expired. Please login again.")
         return redirect('login')
@@ -436,15 +475,11 @@ def resend_otp(request):
         otp, hashed_otp = generate_hashed_otp()
         otp_storage[email] = hashed_otp
 
-        send_mail(
-            'Your OTP Code (Resent)',
-            f'Your new OTP is: {otp}',
-            settings.DEFAULT_FROM_EMAIL,
-            [email],
-            fail_silently=False,
-        )
+        # Send resend OTP via Resend API
+        send_otp_email(email, otp)
 
         messages.success(request, "OTP has been resent to your email.")
+
     except Exception as e:
         messages.error(request, f"Error resending OTP: {str(e)}")
 

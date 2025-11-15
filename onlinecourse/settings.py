@@ -1,11 +1,12 @@
 """
-Django settings for onlinecourse project (Railway deployment ready).
+Django settings for onlinecourse project (Railway deployment + Resend email).
 """
 
 from pathlib import Path
 import os
 from decouple import config
 import dj_database_url
+import resend
 
 # -------------------------------
 # BASE DIR
@@ -18,29 +19,24 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='change-me')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-# Ensure to check ALLOWED_HOSTS for your specific Railway domain
 ALLOWED_HOSTS = [
     ".railway.app",
     "techmatrixcourse-production.up.railway.app",
-    # Add your specific domain here
 ]
 
-# CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://techmatrixcourse-production.up.railway.app",
     "https://*.railway.app",
-    # Add your specific domain with scheme here
 ]
 
-# Secured cookies for Railway HTTPS
-# CRITICAL for cross-origin or proxy deployments
+# Secure cookies (Railway uses HTTPS)
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
 SESSION_COOKIE_SAMESITE = "None"
 
 # -------------------------------
-# APPS
+# INSTALLED APPS
 # -------------------------------
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -52,18 +48,21 @@ INSTALLED_APPS = [
     'onlinecourseapp',
 ]
 
-# Razorpay
+# -------------------------------
+# RAZORPAY
+# -------------------------------
 RAZORPAY_KEY_ID = config('RAZORPAY_KEY_ID', default='')
 RAZORPAY_KEY_SECRET = config('RAZORPAY_KEY_SECRET', default='')
 
-# Email
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
-EMAIL_PORT = 587
-EMAIL_USE_TLS = True
-EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
+# -------------------------------
+# RESEND EMAIL API (REPLACES SMTP)
+# -------------------------------
+RESEND_API_KEY = config("RESEND_API_KEY", default="")
+resend.api_key = RESEND_API_KEY
+
+# Disable SMTP completely to avoid Railway crashes
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
+DEFAULT_FROM_EMAIL = "TechMatrix <onboarding@resend.dev>"
 
 # -------------------------------
 # MIDDLEWARE
@@ -71,7 +70,7 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 
-    # Whitenoise for static files - must be placed right after SecurityMiddleware
+    # Whitenoise for static files
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
@@ -108,34 +107,31 @@ TEMPLATES = [
 WSGI_APPLICATION = 'onlinecourse.wsgi.application'
 
 # -------------------------------
-# AUTH
+# AUTH MODEL
 # -------------------------------
 AUTH_USER_MODEL = 'onlinecourseapp.CustomUser'
 
 # -------------------------------
-# DATABASE
+# DATABASE SETTINGS
 # -------------------------------
 if DEBUG:
-    # Local PostgreSQL (using config() for consistent env variable loading)
     DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.postgresql',
-            'NAME': config('DB_NAME', default='onlinecourse_db'),
-            'USER': config('DB_USER', default='onlinecourse_user'),
-            'PASSWORD': config('DB_PASSWORD', default='password'),
-            'HOST': config('DB_HOST', default='localhost'),
-            'PORT': config('DB_PORT', default=5432, cast=int),
+        "default": {
+            "ENGINE": "django.db.backends.postgresql",
+            "NAME": config("DB_NAME", default="onlinecourse_db"),
+            "USER": config("DB_USER", default="postgres"),
+            "PASSWORD": config("DB_PASSWORD", default="password"),
+            "HOST": config("DB_HOST", default="localhost"),
+            "PORT": config("DB_PORT", default=5432, cast=int),
         }
     }
 
 else:
-    # Production Railway PostgreSQL (using DATABASE_URL)
     DATABASES = {
-        'default': dj_database_url.config(
+        "default": dj_database_url.config(
             default=config("DATABASE_URL"),
             conn_max_age=600,
-            # Enforce SSL for production database connection
-            ssl_require=True
+            ssl_require=True,
         )
     }
 
@@ -158,18 +154,15 @@ USE_I18N = True
 USE_TZ = True
 
 # -------------------------------
-# STATIC FILES / WHITENOISE
+# STATIC FILES (Railway + WhiteNoise)
 # -------------------------------
 STATIC_URL = '/static/'
-
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
-
-# Use WhiteNoise storage to compress and cache static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # -------------------------------
-# MEDIA
+# MEDIA FILES
 # -------------------------------
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
