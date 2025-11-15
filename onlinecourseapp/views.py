@@ -533,7 +533,6 @@ COURSE_IMAGES = {
     # Add more courses as needed
 }
 
-
 from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView,
     PasswordResetConfirmView, PasswordResetCompleteView
@@ -545,6 +544,7 @@ from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
+from django.contrib import messages
 import resend
 
 # Set your Resend API key
@@ -566,6 +566,10 @@ class CustomPasswordResetView(PasswordResetView):
         email = form.cleaned_data['email']
         users = form.get_users(email)
 
+        if not users:
+            messages.error(self.request, "No user registered with this email.")
+            return self.form_invalid(form)
+
         for user in users:
             # Generate password reset token
             uid = urlsafe_base64_encode(force_bytes(user.pk))
@@ -574,20 +578,25 @@ class CustomPasswordResetView(PasswordResetView):
                 reverse_lazy('password_reset_confirm', kwargs={'uidb64': uid, 'token': token})
             )
 
-            # Render email body using template (optional)
+            # Render email body using template
             body = render_to_string('password_reset_email.html', {
                 'user': user,
                 'reset_link': reset_link,
             })
 
-            # Send email via Resend API
-            resend.emails.send(
-                from_email="TechMatrix <onboarding@resend.dev>",
-                to=email,
-                subject="Password Reset Request",
-                html=body
-            )
+            # Send email via Resend API safely
+            try:
+                resend.emails.send(
+                    from_email="TechMatrix <onboarding@resend.dev>",
+                    to=email,
+                    subject="Password Reset Request",
+                    html=body
+                )
+            except Exception as e:
+                messages.error(self.request, f"Error sending email: {str(e)}")
+                return self.form_invalid(form)
 
+        messages.success(self.request, "Password reset link sent successfully!")
         return super().form_valid(form)
 
 
