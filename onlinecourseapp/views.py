@@ -564,6 +564,7 @@ from django.contrib.auth.views import (
     PasswordResetView, PasswordResetDoneView,
     PasswordResetConfirmView, PasswordResetCompleteView
 )
+"""
 from django.contrib.auth.forms import PasswordResetForm
 from django.contrib.auth.tokens import default_token_generator
 from django.contrib.auth import get_user_model
@@ -624,6 +625,42 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'
+"""
+from django.shortcuts import render, redirect
+from django.contrib import messages
+from django.contrib.auth import get_user_model
+
+User = get_user_model()
+
+# -----------------------------------------
+# FORGOT PASSWORD — NO EMAIL LOGIC
+# -----------------------------------------
+def forgot_password_view(request):
+    if request.method == "POST":
+        email = request.POST.get("email")
+        new_password = request.POST.get("new_password")
+        confirm_password = request.POST.get("confirm_password")
+
+        # 1. Password match check
+        if new_password != confirm_password:
+            messages.error(request, "Passwords do not match.")
+            return redirect("forgot_password")
+
+        # 2. User exists check
+        try:
+            user = User.objects.get(email=email)
+        except User.DoesNotExist:
+            messages.error(request, "No account found with this email.")
+            return redirect("forgot_password")
+
+        # 3. Update password in database
+        user.set_password(new_password)
+        user.save()
+
+        messages.success(request, "Password reset successfully! Please login.")
+        return redirect("login")
+
+    return render(request, "forgot_password.html")
 
 # ---------------------- OTHER STATIC VIEWS ----------------------
 def lesson_view(request, course_id): 
