@@ -18,18 +18,22 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 SECRET_KEY = config('SECRET_KEY', default='change-me')
 DEBUG = config('DEBUG', default=False, cast=bool)
 
+# Ensure to check ALLOWED_HOSTS for your specific Railway domain
 ALLOWED_HOSTS = [
     ".railway.app",
     "techmatrixcourse-production.up.railway.app",
+    # Add your specific domain here
 ]
 
 # CSRF
 CSRF_TRUSTED_ORIGINS = [
     "https://techmatrixcourse-production.up.railway.app",
     "https://*.railway.app",
+    # Add your specific domain with scheme here
 ]
 
 # Secured cookies for Railway HTTPS
+# CRITICAL for cross-origin or proxy deployments
 CSRF_COOKIE_SECURE = True
 SESSION_COOKIE_SECURE = True
 CSRF_COOKIE_SAMESITE = "None"
@@ -67,13 +71,13 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
 
-    # Whitenoise for static files
+    # Whitenoise for static files - must be placed right after SecurityMiddleware
     'whitenoise.middleware.WhiteNoiseMiddleware',
 
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
 
-    'django.middleware.csrf.CsrfViewMiddleware',
+    'django.middleware.csrf.CsfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -111,24 +115,25 @@ AUTH_USER_MODEL = 'onlinecourseapp.CustomUser'
 # DATABASE
 # -------------------------------
 if DEBUG:
-    # Local PostgreSQL
+    # Local PostgreSQL (using config() for consistent env variable loading)
     DATABASES = {
         'default': {
             'ENGINE': 'django.db.backends.postgresql',
-            'NAME': os.getenv('DB_NAME'),
-            'USER': os.getenv('DB_USER'),
-            'PASSWORD': os.getenv('DB_PASSWORD'),
-            'HOST': os.getenv('DB_HOST'),
-            'PORT': os.getenv('DB_PORT'),
+            'NAME': config('DB_NAME', default='onlinecourse_db'),
+            'USER': config('DB_USER', default='onlinecourse_user'),
+            'PASSWORD': config('DB_PASSWORD', default='password'),
+            'HOST': config('DB_HOST', default='localhost'),
+            'PORT': config('DB_PORT', default=5432, cast=int),
         }
     }
 
 else:
-    # Railway PostgreSQL
+    # Production Railway PostgreSQL (using DATABASE_URL)
     DATABASES = {
         'default': dj_database_url.config(
             default=config("DATABASE_URL"),
             conn_max_age=600,
+            # Enforce SSL for production database connection
             ssl_require=True
         )
     }
@@ -159,6 +164,7 @@ STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 
+# Use WhiteNoise storage to compress and cache static files
 STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
 
 # -------------------------------
