@@ -1,11 +1,9 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path
 from django.conf import settings
 from django.conf.urls.static import static
 from onlinecourseapp import views
 from django.contrib.auth import views as auth_views
-from django.contrib.auth.views import LogoutView
-from django.urls import path
 from .views import (
     CustomPasswordResetView,
     CustomPasswordResetDoneView,
@@ -28,7 +26,8 @@ urlpatterns = [
     path('resend-otp/', views.resend_otp, name='resend_otp'),
     path('logout/', auth_views.LogoutView.as_view(next_page='login'), name='logout'),
     path('register/', views.register, name='register'),
-   
+
+    # ✅ Password Reset using Custom Views
     path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
     path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
     path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
@@ -43,7 +42,7 @@ urlpatterns = [
     path('lesson/<int:course_id>/', views.lesson_view, name='lesson_view'),
     path('django/<int:course_id>/', views.django, name='django'),
     path('emc/<int:course_id>/', views.emc, name='emc'),
-    path("course/<int:course_id>/", views.course_redirect, name="course_redirect"),
+    path('course/<int:course_id>/', views.course_redirect, name='course_redirect'),
 
     # Payment
     path('course0/', views.course_page, name='course0'),
@@ -52,23 +51,7 @@ urlpatterns = [
     # Notices
     path('notices/', views.notices, name='notices'),
     path('emcfinal_assessment/', views.emc_final_assessment, name='emc_final_assessment'),
-path('dsfinal_assessment/', views.ds_final_assessment, name='ds_final_assessment'),
-    # Password Reset URLs
-    path('reset_password/', 
-         auth_views.PasswordResetView.as_view(template_name="accounts/password_reset.html"), 
-         name="reset_password"),
-
-    path('reset_password_sent/', 
-         auth_views.PasswordResetDoneView.as_view(template_name="accounts/password_reset_sent.html"), 
-         name="password_reset_done"),
-
-    path('reset/<uidb64>/<token>/', 
-         auth_views.PasswordResetConfirmView.as_view(template_name="accounts/password_reset_form.html"), 
-         name="password_reset_confirm"),
-
-    path('reset_password_complete/', 
-         auth_views.PasswordResetCompleteView.as_view(template_name="accounts/password_reset_done.html"), 
-         name="password_reset_complete"),
+    path('dsfinal_assessment/', views.ds_final_assessment, name='ds_final_assessment'),
 ]
 
 # ✅ Static + Media files during development
