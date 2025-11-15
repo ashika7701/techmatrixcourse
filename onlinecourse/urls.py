@@ -4,13 +4,12 @@ from django.conf import settings
 from django.conf.urls.static import static
 from onlinecourseapp import views
 from django.contrib.auth import views as auth_views
-from .views import (
+from onlinecourseapp.views import (
     CustomPasswordResetView,
     CustomPasswordResetDoneView,
     CustomPasswordResetConfirmView,
     CustomPasswordResetCompleteView
 )
-
 urlpatterns = [
     # Admin panel
     path('admin/', admin.site.urls),
